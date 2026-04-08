@@ -309,8 +309,21 @@ def parse_action(text: str, time_of_day: str) -> Optional[LifeOptimizationAction
             lines = text.split("\n")
             text = "\n".join(lines[1:-1]) if len(lines) > 2 else text
         data = json.loads(text)
+        
+        # Only process if data is a dictionary
+        if not isinstance(data, dict):
+            return None
+        
         fa_data = data.get("fitness_action")
         wa_data = data.get("work_action")
+        
+        # Ensure data is a dict before unpacking; reject if it's a string or other type
+        # If either is a string, the LLM returned malformed JSON, so reject the parse
+        if fa_data is not None and not isinstance(fa_data, dict):
+            return None
+        if wa_data is not None and not isinstance(wa_data, dict):
+            return None
+        
         fa = FitnessAction(**fa_data) if fa_data else None
         wa = WorkAction(**wa_data) if wa_data else None
         return LifeOptimizationAction(fitness_action=fa, work_action=wa)

@@ -1,6 +1,6 @@
 ---
 title: Knowledge Worker Planning Environment
-emoji: ��️
+emoji: 🏃
 colorFrom: green
 colorTo: blue
 sdk: docker
@@ -24,6 +24,76 @@ The episode lasts 7 days with 3 phases per day:
 - **Morning**: choose a fitness action
 - **Afternoon**: choose a work action
 - **Evening**: automatic recovery and next-day rollover
+
+### How Phases Work
+
+Each day follows this flow:
+
+**Step 1: Morning (Agent Acts)**
+```
+Agent decides: FitnessAction(workout_type, intensity, duration)
+Environment applies:
+  - Fitness score increased (based on workout)
+  - Fatigue increased (based on intensity)
+  - Energy decreased (based on effort)
+  - Soreness increased (especially for strength)
+  - Consistency improved (for any non-rest workout)
+Observation returned with updated state
+```
+
+**Step 2: Afternoon (Agent Acts)**
+```
+Agent decides: WorkAction(task_type, effort_level)
+Environment applies:
+  - Productivity increased (based on task & energy)
+  - Pending tasks decreased (1-2 tasks cleared)
+  - Energy decreased (based on effort)
+  - Fatigue increased (based on effort)
+  - Focus possibly affected
+  - Consistency updated (based on backlog)
+Observation returned with updated state
+```
+
+**Step 3: Evening (Automatic - Agent Sends Empty Action)**
+```
+Agent sends: LifeOptimizationAction() [empty - no fitness or work]
+Environment applies AUTOMATICALLY:
+  - Sleep hours calculated from fatigue & backlog
+  - Energy restored (based on sleep)
+  - Fatigue reduced (based on sleep quality)
+  - Soreness reduced (fixed daily recovery)
+  - Focus slightly improved
+  - Consistency affected by remaining backlog
+  - Day incremented (next day begins)
+  - New tasks added (1-2 new pending tasks)
+Observation returned with reset state for next day
+```
+
+### Example 7-Day Flow
+
+```
+Day 1:
+├─ Step 1 (Morning):   [Fitness] → state updates → reward
+├─ Step 2 (Afternoon): [Work]    → state updates → reward
+└─ Step 3 (Evening):   [Recovery]→ state updates → reward → Day becomes 2
+
+Day 2:
+├─ Step 4 (Morning):   [Fitness] → state updates → reward
+├─ Step 5 (Afternoon): [Work]    → state updates → reward
+└─ Step 6 (Evening):   [Recovery]→ state updates → reward → Day becomes 3
+
+...
+
+Day 7:
+├─ Step 19 (Morning):   [Fitness] → state updates → reward
+├─ Step 20 (Afternoon): [Work]    → state updates → reward
+└─ Step 21 (Evening):   [Recovery]→ state updates → reward → EPISODE ENDS (done=true)
+```
+
+### Total Steps Per Episode
+- 7 days × 3 phases = **21 steps total**
+- Agent makes **14 decisions** (morning + afternoon)
+- Environment makes **7 automatic recovery phases**
 
 This makes the environment useful for evaluating agents that need to trade off:
 - short-term throughput vs sustainable performance

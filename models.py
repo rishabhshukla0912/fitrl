@@ -12,10 +12,10 @@ with morning fitness, afternoon work, and evening recovery phases.
 """
 
 from enum import Enum
-from typing import Optional
+from typing import Optional, Union
 
 from openenv.core.env_server.types import Action, Observation
-from pydantic import Field
+from pydantic import Field, field_validator, ConfigDict
 
 
 # ---------------------------------------------------------------------------
@@ -55,15 +55,30 @@ class EffortLevel(str, Enum):
 
 class FitnessAction(Action):
     """Morning fitness action."""
-    workout_type: WorkoutType = Field(..., description="Type of workout")
-    intensity: IntensityLevel = Field(..., description="Workout intensity")
-    duration: int = Field(default=30, ge=0, le=120, description="Duration in minutes")
+    model_config = ConfigDict(json_schema_extra={
+        "example": {
+            "workout_type": "strength",
+            "intensity": "medium",
+            "duration": 30
+        }
+    })
+    
+    workout_type: WorkoutType = Field(..., description="Type of workout: strength, cardio, yoga, or rest")
+    intensity: IntensityLevel = Field(..., description="Workout intensity: low, medium, or high")
+    duration: int = Field(default=30, ge=0, le=120, description="Duration in minutes (0-120)")
 
 
 class WorkAction(Action):
     """Afternoon work action."""
-    task_type: TaskType = Field(..., description="Type of work task")
-    effort_level: EffortLevel = Field(..., description="Effort level for the task")
+    model_config = ConfigDict(json_schema_extra={
+        "example": {
+            "task_type": "deep_work",
+            "effort_level": "medium"
+        }
+    })
+    
+    task_type: TaskType = Field(..., description="Type of work task: email, deep_work, support, scheduling, or rest")
+    effort_level: EffortLevel = Field(..., description="Effort level for the task: low, medium, or high")
 
 
 # ---------------------------------------------------------------------------
@@ -76,8 +91,51 @@ class LifeOptimizationAction(Action):
     Supply fitness_action during morning, work_action during afternoon.
     Leave both None for evening recovery.
     """
-    fitness_action: Optional[FitnessAction] = Field(default=None)
-    work_action: Optional[WorkAction] = Field(default=None)
+    model_config = ConfigDict(json_schema_extra={
+        "examples": [
+            {
+                "name": "Morning - Strength Training",
+                "value": {
+                    "fitness_action": {
+                        "workout_type": "strength",
+                        "intensity": "medium",
+                        "duration": 35
+                    }
+                }
+            },
+            {
+                "name": "Afternoon - Deep Work",
+                "value": {
+                    "work_action": {
+                        "task_type": "deep_work",
+                        "effort_level": "high"
+                    }
+                }
+            },
+            {
+                "name": "Evening - Recovery (No action)",
+                "value": {}
+            }
+        ]
+    })
+    
+    fitness_action: Optional[FitnessAction] = Field(
+        default=None,
+        description="Morning fitness action (provide during morning phase only)"
+    )
+    work_action: Optional[WorkAction] = Field(
+        default=None,
+        description="Afternoon work action (provide during afternoon phase only)"
+    )
+
+    @field_validator("fitness_action", "work_action", mode="before")
+    @classmethod
+    def validate_actions(cls, v):
+        """Reject string values and convert to None; only accept dicts or instances."""
+        if isinstance(v, str):
+            # If LLM returns a string instead of object, treat as None (use baseline)
+            return None
+        return v
 
 
 # ---------------------------------------------------------------------------
