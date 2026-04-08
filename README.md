@@ -195,6 +195,71 @@ with FitrlEnv(base_url="http://localhost:8000") as env:
     result = env.step(LifeOptimizationAction())
 ```
 
+## JSON Payload Examples
+
+### Morning Action (Fitness)
+
+```json
+{
+  "fitness_action": {
+    "workout_type": "strength",
+    "intensity": "medium",
+    "duration": 45
+  }
+}
+```
+
+### Afternoon Action (Work)
+
+```json
+{
+  "work_action": {
+    "task_type": "deep_work",
+    "effort_level": "high"
+  }
+}
+```
+
+### Evening Action (Recovery - Empty)
+
+```json
+{}
+```
+
+### Complete Day Sequence (HTTP POST to `/step`)
+
+**Morning Step:**
+```bash
+curl -X POST http://localhost:8000/step \
+  -H "Content-Type: application/json" \
+  -d '{
+    "fitness_action": {
+      "workout_type": "cardio",
+      "intensity": "medium",
+      "duration": 30
+    }
+  }'
+```
+
+**Afternoon Step:**
+```bash
+curl -X POST http://localhost:8000/step \
+  -H "Content-Type: application/json" \
+  -d '{
+    "work_action": {
+      "task_type": "deep_work",
+      "effort_level": "medium"
+    }
+  }'
+```
+
+**Evening Step:**
+```bash
+curl -X POST http://localhost:8000/step \
+  -H "Content-Type: application/json" \
+  -d '{}'
+```
+
 ## Local Setup
 
 ```bash
