@@ -1,0 +1,48 @@
+services:
+  env-server:
+    build:
+      context: .
+    ports:
+      - "8080:8000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  inference:
+    image: python:3.11-slim
+    working_dir: /app
+    volumes:
+      - .:/app
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - API_KEY=${API_KEY:-}
+      - HF_TOKEN=${HF_TOKEN:-}
+      - API_BASE_URL=${API_BASE_URL:-https://api.openai.com/v1}
+      - MODEL_NAME=${MODEL_NAME:-gpt-4.1-mini}
+      - POLICY_MODE=${POLICY_MODE:-baseline}
+      - ENV_BASE_URL=http://env-server:8000
+    command: sh -c "pip install -r requirements.txt && python inference.py"
+    depends_on:
+      env-server:
+        condition: service_healthy
+
+  ui:
+    image: python:3.11-slim
+    working_dir: /app
+    volumes:
+      - .:/app
+    ports:
+      - "7860:7860"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - API_KEY=${API_KEY:-}
+      - HF_TOKEN=${HF_TOKEN:-}
+      - API_BASE_URL=${API_BASE_URL:-https://api.openai.com/v1}
+      - MODEL_NAME=${MODEL_NAME:-gpt-4.1-mini}
+      - ENV_BASE_URL=http://env-server:8000
+    command: sh -c "pip install -r requirements.txt && python app_ui.py"
+    depends_on:
+      env-server:
+        condition: service_healthy

@@ -1,0 +1,62 @@
+FitRL Hackathon Presentation
+
+Slide 1: Title
+FitRL: Knowledge Worker Planning Environment
+
+Speaker note:
+FitRL is an OpenEnv benchmark that simulates a real weekly planning problem: deciding how to balance fitness, focused work, and recovery without burning out.
+
+Slide 2: Problem
+Most agent benchmarks are games or toy problems.
+Real users need support for daily planning under energy, fatigue, and backlog constraints.
+
+Speaker note:
+The gap is not only "can the agent act", but "can it act sustainably across a week of real decisions?"
+
+Slide 3: Solution
+We built a 7-day environment with three phases per day:
+- Morning: choose a fitness action
+- Afternoon: choose a work action
+- Evening: automatic recovery
+
+Speaker note:
+The agent uses the standard OpenEnv `reset()`, `step()`, and `state()` API, so it can be evaluated like a real environment rather than a demo script.
+
+Slide 4: Tasks And Scoring
+Three graded tasks with increasing difficulty:
+- `fitness-progression` - easy
+- `work-allocation` - medium
+- `life-optimization` - hard
+
+Speaker note:
+Each task has a deterministic grader that returns a score from `0.0` to `1.0`, so we can compare policies consistently.
+
+Slide 5: Why It Matters
+The environment models tradeoffs that happen in real life:
+- productivity vs fatigue
+- training vs recovery
+- focused work vs admin work
+- short-term wins vs weekly sustainability
+
+Speaker note:
+This makes FitRL useful for agent evaluation, scheduling copilots, wellness assistants, and long-horizon decision research.
+
+Slide 6: Demo And Proof
+We ship:
+- a working FastAPI/OpenEnv server
+- a Gradio UI
+- a reproducible baseline inference script
+- Docker and Hugging Face deployment support
+
+Speaker note:
+The demo shows the agent making decisions step by step, while the grader tracks progress and produces a reproducible score.
+
+Suggested Demo Flow
+1. Reset the environment.
+2. Show the observation state.
+3. Run one task end to end.
+4. Compare the score for the easy, medium, and hard tasks.
+5. Show how the agent’s choices affect fatigue, backlog, and fitness.
+
+30-Second Pitch
+FitRL is an OpenEnv benchmark for sustainable weekly planning. It simulates how a knowledge worker balances workouts, work tasks, and recovery over seven days. The agent is scored with deterministic graders on easy, medium, and hard tasks, making it useful for evaluating real-world decision-making instead of toy game play.

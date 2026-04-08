@@ -1,0 +1,11 @@
+spec_version: 1
+name: life-optimization
+type: space
+runtime: fastapi
+app: server.app:app
+port: 8000
+description: >
+  A 7-day knowledge-worker planning environment with morning fitness,
+  afternoon workload allocation, and evening recovery phases. Agents
+  are scored on task completion, productivity, fitness gains,
+  consistency, and fatigue management.
