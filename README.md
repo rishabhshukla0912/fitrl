@@ -102,7 +102,7 @@ This makes the environment useful for evaluating agents that need to trade off:
 
 ## Why This Is A Real-World Task
 
-This is not a game environment. It is a compact simulation of weekly planning under energy constraints, which appears in:
+It is a compact simulation of weekly planning under energy constraints, which appears in:
 - personal productivity assistants
 - wellness coaching tools
 - energy-aware scheduling systems
